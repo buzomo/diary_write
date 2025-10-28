@@ -8,8 +8,8 @@
     <style>
         body {
             background-color: #121212;
-            color: #e0e0e0;
-            font-family: Arial, sans-serif;
+            color: #ffe4da;
+            font-family: serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -20,7 +20,6 @@
         .diary-box {
             width: 800px;
             height: 950px;
-            background-color: #1e1e1e;
             border-radius: 0;
             padding: 20px;
             box-sizing: border-box;
@@ -34,9 +33,11 @@
             resize: none;
             font-size: 16px;
             line-height: 1.5;
-            padding: 10px;
+            padding: 34px;
+            border-radius:20px;
             box-sizing: border-box;
             font-family: inherit;
+            font-size: 1.5em;
         }
         textarea:focus {
             outline: none;
@@ -61,7 +62,7 @@
 </head>
 <body>
     <div class="diary-box">
-        <textarea id="diary" placeholder="今日のことを書いてみよう..." autofocus></textarea>
+        <textarea id="diary" autofocus></textarea>
     </div>
     <button class="send-button" id="sendButton">Le Chatに送信</button>
 
@@ -69,12 +70,27 @@
         const diary = document.getElementById('diary');
         const sendButton = document.getElementById('sendButton');
 
-        // localStorageから読み込み
-        diary.value = localStorage.getItem('diaryContent') || '';
+        // 今日の日付を取得
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][today.getDay()];
+        const dateKey = `${year}-${month}-${day}`;
+        const datePlaceholder = `${year}年${month}月${day}日 ${dayOfWeek}曜日`;
 
-        // フォーカスが外れたらlocalStorageに保存 & クリップボードにコピー
+        // プレイスホルダーを設定
+        diary.placeholder = datePlaceholder;
+
+        // LocalStorageから読み込み（今日分のみ）
+        const savedContent = localStorage.getItem(dateKey);
+        if (savedContent) {
+            diary.value = savedContent;
+        }
+
+        // フォーカスが外れたらLocalStorageに保存
         diary.addEventListener('blur', () => {
-            localStorage.setItem('diaryContent', diary.value);
+            localStorage.setItem(dateKey, diary.value);
             navigator.clipboard.writeText(diary.value)
                 .then(() => console.log('クリップボードにコピーしました'))
                 .catch(err => console.error('クリップボードへのコピーに失敗:', err));
